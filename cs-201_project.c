@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #define RED 1
 #define BLACK 0
+int total = 0;
 struct tree
 {
     int color;
@@ -23,54 +24,60 @@ struct tree *newNode(int val)
 }
 struct tree *left_rotate(struct tree *root, struct tree *x)
 {
-    struct tree *y;
-    y = x->right;
-    x->right = y->left;
-    if (y->left != NIL)
+    if (x != NIL)
     {
-        y->left->p = x;
+        struct tree *y;
+        y = x->right;
+        x->right = y->left;
+        if (y->left != NIL)
+        {
+            y->left->p = x;
+        }
+        y->p = x->p;
+        if (x->p == NIL)
+        {
+            root = y;
+        }
+        else if (x == x->p->left)
+        {
+            x->p->left = y;
+        }
+        else
+        {
+            x->p->right = y;
+        }
+        y->left = x;
+        x->p = y;
     }
-    y->p = x->p;
-    if (x->p == NIL)
-    {
-        root = y;
-    }
-    else if (x == x->p->left)
-    {
-        x->p->left = y;
-    }
-    else
-    {
-        x->p->right = y;
-    }
-    y->left = x;
-    x->p = y;
     return root;
 }
 struct tree *right_rotate(struct tree *root, struct tree *x)
 {
-    struct tree *y;
-    y = x->left;
-    x->left = y->right;
-    if (y->right != NIL)
+    if (x != NIL)
     {
-        y->right->p = x;
+        struct tree *y;
+        y = x->left;
+        x->left = y->right;
+        if (y->right != NIL)
+        {
+            y->right->p = x;
+        }
+        y->p = x->p;
+        if (x->p == NIL)
+        {
+            root = y;
+        }
+        else if (x == x->p->left)
+        {
+            x->p->left = y;
+        }
+        else
+        {
+            x->p->right = y;
+        }
+        y->right = x;
+        x->p = y;
     }
-    y->p = x->p;
-    if (x->p == NIL)
-    {
-        root = y;
-    }
-    else if (x == x->p->left)
-    {
-        x->p->left = y;
-    }
-    else
-    {
-        x->p->right = y;
-    }
-    y->right = x;
-    x->p = y;
     return root;
 }
 struct tree *insert_fixup(struct tree *root, struct tree *z)
@@ -153,11 +160,20 @@ struct tree *insert(struct tree *root, int key)
         return root;
     }
 }
-/*void Transplant(struct tree *t, struct tree *u, struct tree *v)
+struct tree *minimum(struct tree *start)
 {
-    if (u->p == NULL)
+    struct tree *temp = start;
+    while (temp->left != NIL)
     {
-        t = v;
+        temp = temp->left;
+    }
+    return temp;
+}
+struct tree *Transplant(struct tree *root, struct tree *u, struct tree *v)
+{
+    if (u->p == NIL)
+    {
+        root = v;
     }
     else if (u == u->p->left)
     {
@@ -168,25 +184,106 @@ struct tree *insert(struct tree *root, int key)
         u->p->right = v;
     }
     v->p = u->p;
+    return root;
 }
-void delete (struct tree*root,struct tree *t, struct tree *z)
+struct tree *delete_fixup(struct tree *root, struct tree *x)
 {
+    struct tree *w;
+    while (x != root && x->color == BLACK)
+    {
+        if (x == x->p->left)
+        {
+            w = x->p->right;
+            if (w->color == RED)
+            {
+                w->color = BLACK;
+                x->p->color = RED;
+                root = left_rotate(root, x->p);
+                w = x->p->right;
+            }
+            if (w->left->color == BLACK && w->right->color == BLACK)
+            {
+                w->color = RED;
+                x = x->p;
+                if (x == root && x->left == NIL)
+                {
+                    root = x;
+                    return root;
+                }
+            }
+            else if (w->right->color == BLACK)
+            {
+                w->left->color = BLACK;
+                w->color = RED;
+                root = right_rotate(root, w);
+                w = x->p->right;
+            }
+            w->color = x->p->color;
+            x->p->color = BLACK;
+            w->right->color = BLACK;
+            root = left_rotate(root, x->p);
+            x = root;
+        }
+        else
+        {
+            w = x->p->left;
+            if (w->color == RED)
+            {
+                w->color = BLACK;
+                x->p->color = RED;
+                root = right_rotate(root, x->p);
+                w = x->p->left;
+            }
+            if (w->right->color == BLACK && w->left->color == BLACK)
+            {
+                w->color = RED;
+                x = x->p;
+                if (x == root && x->right == NIL)
+                {
+                    root = x;
+                    return root;
+                }
+            }
+            else if (w->left->color == BLACK)
+            {
+                w->right->color = BLACK;
+                w->color = RED;
+                root = left_rotate(root, w);
+                w = x->p->left;
+            }
+            w->color = x->p->color;
+            x->p->color = BLACK;
+            w->left->color = BLACK;
+            root = right_rotate(root, x->p);
+            x = root;
+        }
+    }
+    x->color = BLACK;
+    return root;
+}
+struct tree *delete (struct tree *root, struct tree *z)
+{
+    if (total == 1 && root == z)
+    {
+        free(z);
+        return NULL;
+    }
     struct tree *y = z;
     struct tree *x;
     int original = y->color;
-    if (z->left == NULL)
+    if (z->left == NIL)
     {
         x = z->right;
-        Transplant(t, z, z->right);
+        root = Transplant(root, z, z->right);
     }
-    else if (z->right == NULL)
+    else if (z->right == NIL)
     {
         x = z->left;
-        Transplant(t, z, z->left);
+        root = Transplant(root, z, z->left);
     }
     else
     {
-        y = minimum(z->right); //we have to add function
+        y = minimum(z->right);
         original = y->color;
         x = y->right;
         if (y->p == z)
@@ -195,70 +292,45 @@ void delete (struct tree*root,struct tree *t, struct tree *z)
         }
         else
         {
-            Transplant(t, y, y->right);
+            root = Transplant(root, y, y->right);
             y->right = z->right;
             y->right->p = y;
         }
-        Transplant(t, z, y);
+        root = Transplant(root, z, y);
         y->left = z->left;
         y->left->p = y;
         y->color = z->color;
     }
     if (original == BLACK)
     {
-        delete_fixup(root,t, x);
+        root = delete_fixup(root, x);
     }
+    free(z);
+    return root;
 }
-delete_fixup(struct tree *root,struct tree *t, struct tree *x)
-{
-    struct tree* w = (struct tree*)malloc(sizeof(struct tree));
-    while (x != t && x->color == BLACK)
-    {
-        if (x == x->p->left)
-            w = x->p->right;
-        if (w->color == RED)
-        {
-            w->color = BLACK;
-            x->p->color = RED;
-            left_rotate(root,x->p);
-            w = x->p->right;
-        }
-        if (w->left->color == BLACK && w->right->color == BLACK)
-        {
-            w->color = RED;
-            x = x->p;
-        }
-        else if (w->right->color == BLACK)
-        {
-            w->left->color = BLACK;
-            w->color = RED;
-            right_rotate(root,w);
-            w = x->p->right;
-        }
-        w->color = x->p->color;
-        x->p->color = BLACK;
-        w->right->color = BLACK;
-        left_rotate(root,x->p);
-        x = t;
-    }
-    x->color = BLACK;
-}*/
 void display(struct tree *root)
 {
-    struct tree *temp = root;
-    if (temp != NIL)
+    if (root == NULL)
     {
-        display(temp->left);
-        printf("%d ", temp->key);
-        if (temp->color == BLACK)
+        printf("Tree Empty\n");
+    }
+    else
+    {
+        struct tree *temp = root;
+        if (temp != NIL)
         {
-            printf("Black\n");
+            display(temp->left);
+            printf("%d ", temp->key);
+            if (temp->color == BLACK)
+            {
+                printf("Black\n");
+            }
+            else
+            {
+                printf("Red\n");
+            }
+            display(temp->right);
         }
-        else
-        {
-            printf("Red\n");
-        }
-        display(temp->right);
     }
 }
 struct tree *search(struct tree *root, int val)
@@ -275,25 +347,95 @@ int main()
 {
     NIL = (struct tree *)malloc(sizeof(struct tree));
     NIL->color = BLACK;
+    NIL->p = NULL;
+    NIL->right = NULL;
+    NIL->left = NULL;
     struct tree *root = NULL;
-    printf("Enter number of terms: ");
-    int n, val;
-    scanf("%d", &n);
-    printf("Enter value to insert\n");
-    for (int i = 0; i < n; i++)
+    char c;
+    printf("Enter I for insert, D for delete, S for search, V for view, M to find minimum, E for exit: ");
+    scanf(" %c", &c);
+    while (c != 'E')
     {
-        scanf("%d", &val);
-        if (i == 0)
+        switch (c)
         {
-            root = insert(root, val);
-            root->color = BLACK;
+        case 'I':
+            printf("Enter number of terms: ");
+            int n, val;
+            scanf("%d", &n);
+            printf("Enter value to insert\n");
+            for (int i = 0; i < n; i++)
+            {
+                scanf("%d", &val);
+                if (total == 0)
+                {
+                    root = insert(root, val);
+                    root->color = BLACK;
+                    total++;
+                }
+                else
+                {
+                    root = insert(root, val);
+                    total++;
+                }
+            }
+            break;
+        case 'D':
+            printf("Enter element to be deleted: ");
+            int del;
+            scanf("%d", &del);
+            if (search(root, del))
+            {
+                root = delete (root, search(root, del));
+            }
+            else
+            {
+                printf("Element not found.\n");
+                break;
+            }
+            NIL->color = BLACK;
+            NIL->p = NULL;
+            NIL->right = NULL;
+            NIL->left = NULL;
+            total--;
+            printf("Element deleted\n");
+            break;
+        case 'V':
+            if (root == NULL)
+            {
+                printf("Tree Empty\n");
+                printf("Total elements : %d\n", total);
+            }
+            else
+            {
+                printf("Root : %d\n", root->key);
+                printf("Total elements : %d\n", total);
+                display(root);
+            }
+            break;
+        case 'S':
+            printf("Enter element to be searched: ");
+            int s;
+            scanf("%d", &s);
+            if (search(root, s))
+            {
+                printf("Found\n");
+            }
+            else
+            {
+                printf("Not Found\n");
+            }
+            break;
+        case 'M':
+            printf("Minimum Value found is: %d\n", minimum(root)->key);
+            break;
+        case 'E':
+            return -1;
+            break;
+        default:
+            printf("Invalid Input.\n");
         }
-        else
-        {
-            root = insert(root, val);
-        }
+        printf("Enter I for insert, D for delete, S for search, V for view, M to find minimum, E for exit: ");
+        scanf(" %c", &c);
     }
-    display(root);
-    printf("%d\n", root->key);
     return 0;
 }
