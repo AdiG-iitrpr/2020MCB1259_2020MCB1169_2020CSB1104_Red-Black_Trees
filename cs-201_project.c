@@ -3,6 +3,7 @@
 #define RED 1
 #define BLACK 0
 int total = 0;
+// structure for red black tree
 struct tree
 {
     int color;
@@ -13,6 +14,7 @@ struct tree
     struct tree *p;
 };
 struct tree *NIL = NULL;
+// create a new node
 struct tree *newNode(int val)
 {
     struct tree *temp = (struct tree *)malloc(sizeof(struct tree));
@@ -24,6 +26,7 @@ struct tree *newNode(int val)
     temp->freq = 0;
     return temp;
 }
+//Left rotation
 struct tree *left_rotate(struct tree *root, struct tree *x)
 {
     if (x != NIL)
@@ -53,6 +56,7 @@ struct tree *left_rotate(struct tree *root, struct tree *x)
     }
     return root;
 }
+//Right rotation
 struct tree *right_rotate(struct tree *root, struct tree *x)
 {
     if (x != NIL)
@@ -82,6 +86,7 @@ struct tree *right_rotate(struct tree *root, struct tree *x)
     }
     return root;
 }
+//function for balancing tree by required recoloring and rotations
 struct tree *insert_fixup(struct tree *root, struct tree *z)
 {
     while (z->p->color == RED)
@@ -134,6 +139,7 @@ struct tree *insert_fixup(struct tree *root, struct tree *z)
     root->color = BLACK;
     return root;
 }
+//insert element in the tree 
 struct tree *insert(struct tree *root, int key)
 {
     if (root == NULL)
@@ -162,6 +168,7 @@ struct tree *insert(struct tree *root, int key)
         return root;
     }
 }
+//function for predecessor
 struct tree *minimum(struct tree *start)
 {
     struct tree *temp = start;
@@ -171,6 +178,7 @@ struct tree *minimum(struct tree *start)
     }
     return temp;
 }
+//function for joing tree after delleting an element
 struct tree *Transplant(struct tree *root, struct tree *u, struct tree *v)
 {
     if (u->p == NIL)
@@ -188,6 +196,7 @@ struct tree *Transplant(struct tree *root, struct tree *u, struct tree *v)
     v->p = u->p;
     return root;
 }
+// balancing tree by recoloring and rotations after deleting an elememt
 struct tree *delete_fixup(struct tree *root, struct tree *x)
 {
     struct tree *w;
@@ -263,6 +272,7 @@ struct tree *delete_fixup(struct tree *root, struct tree *x)
     x->color = BLACK;
     return root;
 }
+//deleting an element
 struct tree *delete (struct tree *root, struct tree *z)
 {
     if (total == 1 && root == z)
@@ -310,6 +320,7 @@ struct tree *delete (struct tree *root, struct tree *z)
     free(z);
     return root;
 }
+//displaying elements and their colors
 void display(struct tree *root)
 {
     if (root == NULL)
@@ -344,6 +355,7 @@ void display(struct tree *root)
         }
     }
 }
+//search function for deleting element
 struct tree *search(struct tree *root, int val)
 {
     if (root == NULL || root->key == val)
@@ -354,6 +366,7 @@ struct tree *search(struct tree *root, int val)
 
     return search(root->left, val);
 }
+
 int black_height(struct tree *root, int val)
 {
     struct tree *z = search(root, val);
