@@ -7,6 +7,7 @@ struct tree
 {
     int color;
     int key;
+    int freq;
     struct tree *left;
     struct tree *right;
     struct tree *p;
@@ -20,6 +21,7 @@ struct tree *newNode(int val)
     temp->right = NIL;
     temp->p = NIL;
     temp->color = RED;
+    temp->freq = 0;
     return temp;
 }
 struct tree *left_rotate(struct tree *root, struct tree *x)
@@ -320,7 +322,16 @@ void display(struct tree *root)
         if (temp != NIL)
         {
             display(temp->left);
-            printf("%d ", temp->key);
+            printf("%d\t", temp->key);
+            printf("%d\t", temp->freq);
+            if (temp->p == NIL)
+            {
+                printf("NIL\t");
+            }
+            else
+            {
+                printf("%d\t", temp->p->key);
+            }
             if (temp->color == BLACK)
             {
                 printf("Black\n");
@@ -343,6 +354,32 @@ struct tree *search(struct tree *root, int val)
 
     return search(root->left, val);
 }
+int black_height(struct tree *root, int val)
+{
+    struct tree *z = search(root, val);
+    if (z)
+    {
+        struct tree *temp = root;
+        int bh = 0;
+        while (temp != z)
+        {
+            if (val < temp->key)
+            {
+                if (temp->color == BLACK)
+                    bh++;
+                temp = temp->left;
+            }
+            else
+            {
+                if (temp->color == BLACK)
+                    bh++;
+                temp = temp->right;
+            }
+        }
+        return bh;
+    }
+    return -1;
+}
 int main()
 {
     NIL = (struct tree *)malloc(sizeof(struct tree));
@@ -352,7 +389,7 @@ int main()
     NIL->left = NULL;
     struct tree *root = NULL;
     char c;
-    printf("Enter I for insert, D for delete, S for search, V for view, M to find minimum, E for exit: ");
+    printf("Enter I for insert, D for delete, S for search, V for view, M to find minimum, B to know black height, E for exit: ");
     scanf(" %c", &c);
     while (c != 'E')
     {
@@ -366,16 +403,33 @@ int main()
             for (int i = 0; i < n; i++)
             {
                 scanf("%d", &val);
-                if (total == 0)
+                if (total == 0 || search(root, val) == root)
                 {
-                    root = insert(root, val);
-                    root->color = BLACK;
-                    total++;
+                    if (!search(root, val))
+                    {
+                        root = insert(root, val);
+                        root->color = BLACK;
+                        total++;
+                        root->freq++;
+                    }
+                    else
+                    {
+                        root->freq++;
+                    }
                 }
                 else
                 {
-                    root = insert(root, val);
-                    total++;
+                    if (search(root, val))
+                    {
+                        struct tree *t = search(root, val);
+                        t->freq++;
+                    }
+                    else
+                    {
+                        root = insert(root, val);
+                        total++;
+                        search(root, val)->freq++;
+                    }
                 }
             }
             break;
@@ -409,6 +463,7 @@ int main()
             {
                 printf("Root : %d\n", root->key);
                 printf("Total elements : %d\n", total);
+                printf("Value Frequency Parent Color\n");
                 display(root);
             }
             break;
@@ -428,13 +483,27 @@ int main()
         case 'M':
             printf("Minimum Value found is: %d\n", minimum(root)->key);
             break;
+        case 'B':
+            printf("Enter value of key whose black height is to be determined: ");
+            int a;
+            scanf("%d", &a);
+            int bh = black_height(root, a);
+            if (bh != -1)
+            {
+                printf("Black height of %d is : %d\n", a, bh);
+            }
+            else
+            {
+                printf("Element not found\n");
+            }
+            break;
         case 'E':
             return -1;
             break;
         default:
             printf("Invalid Input.\n");
         }
-        printf("Enter I for insert, D for delete, S for search, V for view, M to find minimum, E for exit: ");
+        printf("Enter I for insert, D for delete, S for search, V for view, M to find minimum, B to know black height, E for exit: ");
         scanf(" %c", &c);
     }
     return 0;
