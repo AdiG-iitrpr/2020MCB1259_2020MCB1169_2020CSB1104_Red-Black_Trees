@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #define RED 1
 #define BLACK 0
-int total = 0;
+int total = 0;  // no. of node in the tree
 // structure for red black tree
 struct tree
 {
