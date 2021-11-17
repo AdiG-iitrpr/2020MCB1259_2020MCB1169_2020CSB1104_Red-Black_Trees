@@ -1,18 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
-#define RED 1
+#define RED 1 //Defining Red by 1 and Black by 0.
 #define BLACK 0
-int total = 0;
+int total = 0; // Total no. of nodes in the tree
+// structure for red black tree
 struct tree
 {
-    int color;
-    int key;
-    int freq;
-    struct tree *left;
-    struct tree *right;
-    struct tree *p;
+    int color;          //stores color of node
+    int key;            //stores key value of node
+    int freq;           //stores frequency of value entered in case of repetitions
+    struct tree *left;  //points to left child of node
+    struct tree *right; //points to right child
+    struct tree *p;     //points to the parent of the node
 };
+//sentinel node NIL to avoid extra space
 struct tree *NIL = NULL;
+// create a new node
 struct tree *newNode(int val)
 {
     struct tree *temp = (struct tree *)malloc(sizeof(struct tree));
@@ -24,6 +27,7 @@ struct tree *newNode(int val)
     temp->freq = 0;
     return temp;
 }
+//Left rotation
 struct tree *left_rotate(struct tree *root, struct tree *x)
 {
     if (x != NIL)
@@ -53,6 +57,7 @@ struct tree *left_rotate(struct tree *root, struct tree *x)
     }
     return root;
 }
+//Right rotation
 struct tree *right_rotate(struct tree *root, struct tree *x)
 {
     if (x != NIL)
@@ -82,6 +87,7 @@ struct tree *right_rotate(struct tree *root, struct tree *x)
     }
     return root;
 }
+//function for balancing tree after insertion by required recoloring and rotations
 struct tree *insert_fixup(struct tree *root, struct tree *z)
 {
     while (z->p->color == RED)
@@ -134,6 +140,7 @@ struct tree *insert_fixup(struct tree *root, struct tree *z)
     root->color = BLACK;
     return root;
 }
+//insert element in the tree following BST properties
 struct tree *insert(struct tree *root, int key)
 {
     if (root == NULL)
@@ -162,6 +169,7 @@ struct tree *insert(struct tree *root, int key)
         return root;
     }
 }
+//function for finding minimum valued element in the given subtree
 struct tree *minimum(struct tree *start)
 {
     struct tree *temp = start;
@@ -171,6 +179,7 @@ struct tree *minimum(struct tree *start)
     }
     return temp;
 }
+//function for joining tree after deleting an element
 struct tree *Transplant(struct tree *root, struct tree *u, struct tree *v)
 {
     if (u->p == NIL)
@@ -188,6 +197,7 @@ struct tree *Transplant(struct tree *root, struct tree *u, struct tree *v)
     v->p = u->p;
     return root;
 }
+// balancing tree by recoloring and rotations after deleting an elememt
 struct tree *delete_fixup(struct tree *root, struct tree *x)
 {
     struct tree *w;
@@ -263,6 +273,7 @@ struct tree *delete_fixup(struct tree *root, struct tree *x)
     x->color = BLACK;
     return root;
 }
+//deleting an element
 struct tree *delete (struct tree *root, struct tree *z)
 {
     if (total == 1 && root == z)
@@ -310,6 +321,7 @@ struct tree *delete (struct tree *root, struct tree *z)
     free(z);
     return root;
 }
+//displaying elements and their colors
 void display(struct tree *root)
 {
     if (root == NULL)
@@ -344,6 +356,7 @@ void display(struct tree *root)
         }
     }
 }
+//search function
 struct tree *search(struct tree *root, int val)
 {
     if (root == NULL || root->key == val)
@@ -354,6 +367,7 @@ struct tree *search(struct tree *root, int val)
 
     return search(root->left, val);
 }
+//function to find black height of node wanted by the user.
 int black_height(struct tree *root, int val)
 {
     struct tree *z = search(root, val);
@@ -481,7 +495,14 @@ int main()
             }
             break;
         case 'M':
-            printf("Minimum Value found is: %d\n", minimum(root)->key);
+            if (root == NULL)
+            {
+                printf("Tree Empty\n");
+            }
+            else
+            {
+                printf("Minimum Value found is: %d\n", minimum(root)->key);
+            }
             break;
         case 'B':
             printf("Enter value of key whose black height is to be determined: ");
