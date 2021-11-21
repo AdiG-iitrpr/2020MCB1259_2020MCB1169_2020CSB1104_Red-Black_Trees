@@ -485,9 +485,29 @@ int main()
             printf("Enter element to be searched: ");
             int s;
             scanf("%d", &s);
-            if (search(root, s))
+            struct tree *t = search(root, s);
+            if (t)
             {
                 printf("Found\n");
+                printf("Value Frequency Parent Color\n");
+                printf("%d\t", t->key);
+                printf("%d\t", t->freq);
+                if (t->p == NIL)
+                {
+                    printf("NIL\t");
+                }
+                else
+                {
+                    printf("%d\t", t->p->key);
+                }
+                if (t->color == BLACK)
+                {
+                    printf("Black\n");
+                }
+                else
+                {
+                    printf("Red\n");
+                }
             }
             else
             {
